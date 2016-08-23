@@ -1,0 +1,47 @@
+{
+    "prefer-stable": true,
+    "name": "fpoirotte/push",
+    "description": "PHP shell",
+    "keywords": ["shell"],
+    "homepage": "https://github.com/fpoirotte/push",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "François Poirotte",
+            "email": "clicky@erebot.net",
+            "role": "lead"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/fpoirotte/push/issues",
+        "irc": "irc://irc.iiens.net/Erebot",
+        "source": "https://github.com/fpoirotte/push"
+    },
+    "require": {
+        "php": ">=5.3.6",
+        "ext-sockets": "*",
+        "ext-posix": "*",
+        "ext-pcntl": "*",
+        "ext-eio": "*",
+        "nikic/php-parser": "*",
+        "erebot/plop": ">=0.6"
+    },
+    "require-dev": {
+        "erebot/buildenv": "~1.2.0",
+        "phpunit/phpunit": "*"
+    },
+    "suggest": {
+        "ext-proctitle": "Help distinguish between push's processes"
+    },
+    "autoload": {
+        "psr-4": {
+            "fpoirotte\\push\\": "src/"
+        }
+    },
+    "bin": ["bin/push"],
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.0.x-dev"
+        }
+    }
+}

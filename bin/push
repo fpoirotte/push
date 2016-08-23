@@ -1,0 +1,97 @@
+#!/usr/bin/env php
+<?php
+/*
+* This file is part of push.
+*
+* (c) François Poirotte <clicky@erebot.net>
+* Pssht is licensed under the MIT license.
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
+
+if (version_compare(phpversion(), '5.3.6', '<')) {
+    echo "push requires PHP 5.3.6 or newer." . PHP_EOL;
+    exit -1;
+}
+
+$extensions = array(
+    'sockets',
+    'posix',
+    'pcntl',
+);
+
+foreach ($extensions as $ext) {
+    if (!extension_loaded($ext)) {
+        echo "Extension $ext is required" . PHP_EOL;
+        exit -1;
+    }
+}
+
+require_once(
+    dirname(__DIR__) .
+    DIRECTORY_SEPARATOR . 'vendor' .
+    DIRECTORY_SEPARATOR . 'autoload.php'
+);
+
+if (!strncasecmp(substr(__FILE__, -5), '.phar', 5)) {
+    if (!extension_loaded('phar')) {
+        echo "Extension phar is required" . PHP_EOL;
+        exit -1;
+    }
+
+    try {
+        Phar::mapPhar();
+    } catch (Exception $e) {
+        echo "Cannot process Push phar:" . PHP_EOL;
+        echo $e->getMessage() . PHP_EOL;
+        exit -1;
+    }
+    $phar       = new Phar(__FILE__);
+    $metadata   = $phar->getMetadata();
+    define(
+        'PUSH_VERSION',
+        isset($metadata['version']) ? $metadata['version'] : 'devel'
+    );
+} else {
+    $path       = dirname(__DIR__) .
+        DIRECTORY_SEPARATOR . 'vendor' .
+        DIRECTORY_SEPARATOR . 'erebot' .
+        DIRECTORY_SEPARATOR . 'buildenv' .
+        DIRECTORY_SEPARATOR . 'get_version.php';
+    $version    = 'devel';
+    if (file_exists($path)) {
+        $version = @exec("php " . escapeshellarg($path)) or 'devel';
+    }
+    define('PUSH_VERSION', $version);
+}
+
+// Display various information on startup.
+$push_version = PUSH_VERSION;
+
+$flags = array();
+if (!PHP_ZTS) {
+    $flags[] = "NTS";
+}
+if (PHP_DEBUG) {
+    $flags[] = "DEBUG";
+}
+if (count($flags)) {
+    array_unshift($flags, '(');
+    $flags[]    = ')';
+}
+$php_flags      = implode(' ', $flags);
+$php_version    = PHP_VERSION;
+$php_sapi       = PHP_SAPI;
+
+echo "push $push_version by F. Poirotte" . PHP_EOL;
+echo "PHP $php_version ($php_sapi) $php_flags" . PHP_EOL;
+echo 'Type "exit" or press Ctrl+D to quit.' . PHP_EOL;
+echo PHP_EOL;
+
+// Load the CLI and let the fun begin.
+$manager    = new \fpoirotte\push\Manager();
+$shell      = new \fpoirotte\push\LineReader($manager);
+$shell->run();
+
+__HALT_COMPILER();
