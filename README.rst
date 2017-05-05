@@ -19,7 +19,7 @@ Installation
 ------------
 
 First, make sure `Composer`_ is installed. If not, follow
-the `installation instructions <https://getcomposer.org/download/>`
+the `installation instructions <https://getcomposer.org/download/>`_
 on their website.
 
 Then, make sure the following extensions are installed and enabled

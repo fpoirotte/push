@@ -2,7 +2,8 @@ Welcome to push's documentation!
 ================================
 
 push is a shell written in PHP.
-It bears similarities with `Boris <https://github.com/borisrepl/boris>`.
+It bears a few similarities with `Boris <https://github.com/borisrepl/boris>`_
+but aims at being easy to embed in broader libraries/projects.
 
 Contents:
 

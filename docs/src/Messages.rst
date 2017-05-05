@@ -3,6 +3,10 @@ Messages
 
 This section describes the various messages that may be sent by each peer.
 
+..  toctree::
+    :local:
+
+
 Messages emitted by the manager
 -------------------------------
 
