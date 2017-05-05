@@ -25,9 +25,13 @@ class Worker extends Protocol
 
     public function run()
     {
+        // Prepare the environment.
         list($file, $line) = $this->evaluate(true);
+
+        // We are now ready to process commands, let's notify the manager!
         $this->send(self::OP_READY, "$file($line)");
 
+        // We keep processing incoming commands.
         while (true) {
             $this->runOnce();
         }
@@ -48,31 +52,66 @@ class Worker extends Protocol
     {
         $pid = getmypid();
         $this->child = pcntl_fork();
+
         if ($this->child < 0) {
             throw new \RuntimeException('Could not run command');
         }
 
-        if ($this->child > 0) {
-            pcntl_signal(SIGINT, array($this, 'cancel'), true);
-            $child = pcntl_waitpid(-1, $status);
-            if ($child > 0) {
-                if (pcntl_wifexited($child) && pcntl_wexitstatus($child) === 0) {
-                    exit(0);
-                }
-                $this->child = null;
-                $this->send(self::OP_END);
-            }
-        } else {
+        if ($this->child == 0) {
+            // We are now executing in a new worker. \o/
+
+            // Restore the default handler for the SIGINT signal.
             pcntl_signal(SIGINT, SIG_DFL, true);
+
+            // Notify the manager that we are about to process the command.
             $this->send(self::OP_START, (string) getmypid());
+
+            // Execute the command and output the results.
             $this->data = $data;
             ini_set('display_errors', '0');
             $this->evaluate();
             ini_set('display_errors', '1');
             $this->outputResult();
+
+            /* Kill the previous worker, because it is now obsolete
+             * (the new worker has a more up-to-date state, which
+             * includes any potential side effects from the last command).
+             * Finally, we notify the manager that the command's execution
+             * has finished (so that it may send new commands our way).
+             *
+             * Note :
+             *
+             * This section of the code is never executed if the command
+             * raised a fatal error/exception.
+             * In this case, the previous worker will handle it.
+            */
             posix_kill($pid, SIGKILL);
             pcntl_signal_dispatch();
             $this->send(self::OP_END);
+        } else {
+            // We're executing in the old worker.
+
+            // Set up a signal handler so that we may interrupt the running
+            // command if necessary.
+            pcntl_signal(SIGINT, array($this, 'cancel'), true);
+
+            // Wait for the new worker to terminate.
+            // Normally, this will never happen because the new worker
+            // will kill us right after it's done doing whatever it was doing.
+            $child = pcntl_waitpid(-1, $status);
+            if ($child > 0) {
+                // The new worker exited normally (eg. executed "exit 0;").
+                // In that case, we also exit normally.
+                if (pcntl_wifexited($child) && pcntl_wexitstatus($child) === 0) {
+                    exit(0);
+                }
+
+                // Otherwise, it means the command triggered a fatal error
+                // and we have the latest state.
+                // Notify the manager that we are ready to accept new commands.
+                $this->child = null;
+                $this->send(self::OP_END);
+            }
         }
     }
 
@@ -101,11 +140,15 @@ class Worker extends Protocol
     protected function handle_SIGNAL($data)
     {
         $signo = (int) $data;
+
+        // Just in case we received something that is not a valid signal.
         if ($signo === 0) {
             throw new \RuntimeException();
         }
 
         posix_kill(getmypid(), $signo);
-        pcntl_signal_dispatch();
+        if (function_exists('pcntl_signal_dispatch')) {
+            pcntl_signal_dispatch();
+        }
     }
 }

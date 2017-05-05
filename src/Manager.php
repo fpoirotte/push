@@ -101,10 +101,14 @@ class Manager extends Protocol
                 setproctitle($title);
             }
 
+            // Close the reading end of the streams.
             fclose($pipes[1][0]);
             fclose($pipes[2][0]);
             fclose($pipes[3][0]);
 
+            // Overwrite the special constants STDIN, STDOUT & STDERR
+            // with new streams so that the worker's output/errors can
+            // by intercepted.
             $this->replaceSpecialStream("STDIN", fopen('/dev/null', 'rb'));
             $this->replaceSpecialStream("STDOUT", $pipes[1][1]);
             $this->replaceSpecialStream("STDERR", $pipes[2][1]);
