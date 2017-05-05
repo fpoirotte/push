@@ -1,0 +1,8 @@
+@INCLUDE = vendor/erebot/buildenv/Doxyfile
+PROJECT_NAME           = $(COMPONENT_NAME)
+PROJECT_NUMBER         = $(COMPONENT_VERSION)
+IGNORE_PREFIX          = $ \
+ALIASES               += "codeCoverageIgnore="
+ALIASES               += "codeCoverageIgnoreStart="
+ALIASES               += "codeCoverageIgnoreEnd="
+INPUT                 += docs/additions/

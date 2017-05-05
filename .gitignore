@@ -1,1 +1,4 @@
 /vendor
+/docs/coverage
+/docs/api
+*.tagfile.xml
