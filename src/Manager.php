@@ -161,19 +161,19 @@ class Manager extends Protocol
         $this->send(self::OP_SIGNAL, (string) $signo);
     }
 
-    protected function handle_READY($data)
+    protected function handleREADY($data)
     {
         // $data contains the file & line where PHP evaluates the code.
         // We use this to filter out the output from errors/exceptions.
         $this->evalLocation = $data;
     }
 
-    protected function handle_START($data)
+    protected function handleSTART($data)
     {
         $this->workerPid = (int) $data;
     }
 
-    protected function handle_END()
+    protected function handleEND()
     {
         $this->working = false;
         $this->sendWork();

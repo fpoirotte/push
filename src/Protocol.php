@@ -22,7 +22,7 @@ abstract class Protocol
         $this->opcodes  = $opcodes;
     }
 
-    protected function send($op, $data='')
+    protected function send($op, $data = '')
     {
         // Prevent overflows.
         if (strlen($data) > 65535) {
@@ -85,7 +85,7 @@ abstract class Protocol
         }
 
         // Call the handler for that operation (if one has been defined).
-        $handler = 'handle_' . $this->opcodes[$op];
+        $handler = 'handle' . $this->opcodes[$op];
         if (method_exists($this, $handler)) {
             return call_user_func(array($this, $handler), $data);
         }

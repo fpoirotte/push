@@ -48,7 +48,7 @@ class Worker extends Protocol
         pcntl_signal_dispatch();
     }
 
-    protected function handle_COMMAND($data)
+    protected function handleCOMMAND($data)
     {
         $pid = getmypid();
         $this->child = pcntl_fork();
@@ -115,7 +115,7 @@ class Worker extends Protocol
         }
     }
 
-    protected function evaluate($magic=false)
+    protected function evaluate($magic = false)
     {
         if ($magic) {
             // Return this file's name & the line where eval() can be found.
@@ -137,7 +137,7 @@ class Worker extends Protocol
         fwrite(STDOUT, var_export($this->result, true));
     }
 
-    protected function handle_SIGNAL($data)
+    protected function handleSIGNAL($data)
     {
         $signo = (int) $data;
 
