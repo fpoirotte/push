@@ -1,0 +1,2 @@
+sphinxcontrib-paradoxy
+sphinxcontrib-varlinks
