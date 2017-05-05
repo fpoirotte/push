@@ -19,6 +19,7 @@ $extensions = array(
     'sockets',
     'posix',
     'pcntl',
+    'eio',
 );
 
 foreach ($extensions as $ext) {
@@ -43,7 +44,7 @@ if (!strncasecmp(substr(__FILE__, -5), '.phar', 5)) {
     try {
         Phar::mapPhar();
     } catch (Exception $e) {
-        echo "Cannot process Push phar:" . PHP_EOL;
+        echo "Cannot process push phar:" . PHP_EOL;
         echo $e->getMessage() . PHP_EOL;
         exit -1;
     }
