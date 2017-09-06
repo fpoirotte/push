@@ -7,11 +7,13 @@ class LineReader
     protected $manager;
     protected $stop;
 
+    const PS1 = "\001\033[1;32m\002>>>\001\033[0m\002 ";
+
     public function __construct(\fpoirotte\push\Manager $manager)
     {
         $this->manager  = $manager;
         $this->stop     = false;
-        $this->prompt   = '>>> ';
+        $this->prompt   = static::PS1;
     }
 
     protected function filter($data)
@@ -182,7 +184,7 @@ class LineReader
                 }
 
                 if (!$this->manager->isWorking()) {
-                    $this->prompt = '>>> ';
+                    $this->prompt = static::PS1;
                 }
 
                 if (!readline_callback_handler_install($this->prompt, array($this, 'lineHandler'))) {
